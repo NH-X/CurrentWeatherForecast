@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">CurrentWeatherForcecast</string>
+
+    <string name="main_activity" translatable="false">Main Activity</string>
+    <string name="main_activity_text" translatable="false">
+        Leave and switch back to the app to see the ad.
+    </string>
+    <string name="splash_activity_image_text" translatable="false">Splash Activity Image</string>
+    <string name="splash_activity_text" translatable="false">AdMob App Open Example</string>
+
+    <string name="request_error">发送请求失败</string>
+    <string name="request_error_network_connection_failed">网络异常</string>
+    <string name="request_error_city_not_found">未找到该城市的天气信息</string>
+    <string name="request_error_data_processing_failed">数据处理异常</string>
+    <string name="request_success">成功</string>
+</resources>

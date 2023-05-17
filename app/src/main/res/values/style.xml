@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <!-- SplashActivity theme. -->
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorBackground">#D4EBF2</item>
+    </style>
+
+    <style name="AppCompatTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+
+    <style name="weathersItem"></style>
+    <style name="weathersItem.Layout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <style name="weathersItem.Image">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">40dp</item>
+    </style>
+    <style name="weathersItem.Text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+</resources>
