@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CurrentWeatherForcecast</string>
+    <string name="app_name">CurrentWeatherForecast</string>
 
     <string name="main_activity" translatable="false">Main Activity</string>
     <string name="main_activity_text" translatable="false">
