@@ -52,20 +52,21 @@ public class HourWeatherRepository {
                 RequestProcessType.request_executing,
                 "等待中"
         ));
-        hourWLRequestTask=new HourWeatherListRequestTask(hourWeatherDataSet,mRequestSchedule);
+        hourWLRequestTask=new HourWeatherListRequestTask(mRequestSchedule);
         hourWLRequestTask
+                .setHourInfo(hourWeatherDataSet)
                 .setHourlyBean(hourlyWeatherDataSet)
                 .setCurrentBean(currentWeatherDataSet);
         Log.d(TAG, "startRequest: run");
         hourWLRequestTask.execute(coord);
     }
 
-    public void setWeatherHourInfo(WeatherHourInfo weatherHourInfo){
-        this.hourWeatherDataSet =weatherHourInfo;
-        this.viewModel.setWeatherHour(weatherHourInfo);
-        Log.d(TAG, "setWeatherHourInfo: weatherHourInfo is null? "+(weatherHourInfo==null));
-        Log.d(TAG, "setWeatherHourInfo: currentBean is null? "+(weatherHourInfo==null?true:(weatherHourInfo.current==null)));
-    }
+//    public void setWeatherHourInfo(WeatherHourInfo weatherHourInfo){
+//        this.hourWeatherDataSet =weatherHourInfo;
+//        this.viewModel.setWeatherHour(weatherHourInfo);
+//        Log.d(TAG, "setWeatherHourInfo: weatherHourInfo is null? "+(weatherHourInfo==null));
+//        Log.d(TAG, "setWeatherHourInfo: currentBean is null? "+(weatherHourInfo==null?true:(weatherHourInfo.current==null)));
+//    }
 
     public MutableLiveData<WeatherHourInfo> getHourWeather() {
         MutableLiveData<WeatherHourInfo> dataList=new MutableLiveData<>();

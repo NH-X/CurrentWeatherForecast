@@ -10,8 +10,8 @@ public class CoordBean implements Serializable {
      * lat : 44.34
      */
 
-    public double lon;          //经度
-    public double lat;          //纬度
+    public double lon=0.0;          //经度
+    public double lat=0.0;          //纬度
     public String timeone;
     public String timeone_offset;
 

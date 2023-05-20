@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.currentweatherforecast.adapter.WeatherDayListAdapter;
 import com.example.currentweatherforecast.adapter.WeatherHourListAdapter;
+import com.example.currentweatherforecast.bean.citybean.CityInfo;
 import com.example.currentweatherforecast.bean.weatherbean.CoordBean;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo.DailyBean;
@@ -43,7 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener{
     private static final String TAG="MainActivity";
 
     private AdView adView;
@@ -91,10 +92,39 @@ public class MainActivity extends AppCompatActivity {
         myApp=MainApplication.getInstance();
         coord=new CoordBean();
         getLocation();
-        coord.lat=20.03;
-        coord.lon=110.32;
         mMainViewModel= new ViewModelProvider(this).get(MainViewModel.class);
         mMainViewModel.init(coord);
+
+        mMainViewModel.getCityResourceSchedule().observe(this, new Observer<Resource<List<CityInfo>>>() {
+            @Override
+            public void onChanged(Resource<List<CityInfo>> cityInfoResource) {
+                if(cityInfoResource.getType()== RequestProcessType.request_error){
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
+                }
+                else if(cityInfoResource.getType()== RequestProcessType.request_error_data_processing_failed){
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
+                }
+                else if(cityInfoResource.getType()== RequestProcessType.request_error_city_not_found){
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
+                }
+                else if(cityInfoResource.getType()== RequestProcessType.request_error_network_connection_failed){
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
+                }
+                else if(cityInfoResource.getType()==RequestProcessType.request_success){
+                    mMainViewModel.getCurrentCityName().observe(MainActivity.this, new Observer<String>() {
+                        @Override
+                        public void onChanged(String s) {
+                            tv_city.setText(s);
+                            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onChanged: cityName is "+s);
+
+                            mWeatherDayListAdapter.setCity(s);
+                            mWeatherDayListAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        });
         mMainViewModel.getHourResourceSchedule().observe(this, new Observer<Resource<WeatherHourInfo>>() {
             @Override
             public void onChanged(Resource<WeatherHourInfo> weatherHourInfoResource) {
@@ -119,12 +149,9 @@ public class MainActivity extends AppCompatActivity {
                             mWeatherHourListAdapter.notifyDataSetChanged();
                         }
                     });
-                    mMainViewModel.getCurrentWeather().observe(MainActivity.this, new Observer<CurrentBean>() {
+                    mMainViewModel.getmCurrentWeather().observe(MainActivity.this, new Observer<CurrentBean>() {
                         @Override
                         public void onChanged(CurrentBean currentBean) {
-                            tv_city.setText(String.format(
-                                    "%.2f+%.2f", coord.lon, coord.lat
-                            ));
                             if (currentBean != null) {
                                 Log.d(TAG,"onChanged: currentBean=" + (currentBean == null));
                                 tv_date.setText(DateUtil.getNowDateTime());
@@ -186,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
                         public void onChanged(List<DailyBean> weatherDailyBean) {
                             if(weatherDailyBean!=null) {
                                 Toast.makeText(MainActivity.this, weatherDailyBean.size() + "", Toast.LENGTH_SHORT).show();
-                                mWeatherDayListAdapter.setCity(coord.lon + "+" + coord.lat);
                                 mWeatherDayListAdapter.setDailyBeanList(weatherDailyBean);
                                 mWeatherDayListAdapter.notifyDataSetChanged();
                             }
@@ -259,31 +285,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void getLocation(){
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if(PermissionUtil.checkPermission(this,LocationManager.GPS_PROVIDER,0)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        if(PermissionUtil.checkPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION,0)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
     }
 
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            double latitude = location.getLatitude(); // 获取纬度
-            double longitude = location.getLongitude(); // 获取经度
-            // TODO: 处理获取到的经纬度信息
-            coord.lon=longitude;
-            coord.lat=latitude;
-        }
+    @Override
+    public void onLocationChanged(Location location) {
+        double latitude = location.getLatitude(); // 获取纬度
+        double longitude = location.getLongitude(); // 获取经度
+        // TODO: 处理获取到的经纬度信息
+        coord.lon=longitude;
+        coord.lat=latitude;
+        Log.d(TAG, String.format("onLocationChanged: lat is %f, lon is %f",latitude,longitude));
+    }
 
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-        @Override
-        public void onProviderEnabled(String provider) {}
+    @Override
+    public void onProviderEnabled(String provider) {}
 
-        @Override
-        public void onProviderDisabled(String provider) {}
-    };
-
+    @Override
+    public void onProviderDisabled(String provider) {}
 
     @Override
     protected void onPause() {

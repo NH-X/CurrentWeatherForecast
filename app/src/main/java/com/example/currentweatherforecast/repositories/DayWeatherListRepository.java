@@ -56,12 +56,12 @@ public class DayWeatherListRepository {
         dayWLRequestTask.execute(coord);
     }
 
-    public void setWeatherDayInfo(WeatherDayInfo weatherDayInfo){
-        this.dayWeatherDataSet =weatherDayInfo;
-        this.viewModel.setWeatherDay(weatherDayInfo);
-        Log.d(TAG, "setWeatherDayInfo: dayWeatherDataSet is null?"+(dayWeatherDataSet ==null));
-        Log.d(TAG, "setWeatherDayInfo: dailyBean is null?"+(dayWeatherDataSet.daily==null));
-    }
+//    public void setWeatherDayInfo(WeatherDayInfo weatherDayInfo){
+//        this.dayWeatherDataSet =weatherDayInfo;
+//        this.viewModel.setWeatherDay(weatherDayInfo);
+//        Log.d(TAG, "setWeatherDayInfo: dayWeatherDataSet is null?"+(dayWeatherDataSet ==null));
+//        Log.d(TAG, "setWeatherDayInfo: dailyBean is null?"+(dayWeatherDataSet.daily==null));
+//    }
 
     public MutableLiveData<WeatherDayInfo> getDayWeatherList(){
         MutableLiveData<WeatherDayInfo> dataList=new MutableLiveData<>();

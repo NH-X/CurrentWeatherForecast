@@ -23,7 +23,7 @@ public class WeatherDayListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private final MainApplication myApp;
     private Context context;
     private List<DailyBean> weatherList;
-    private String city;
+    private String city="";
 
     public WeatherDayListAdapter(Context context, List<DailyBean> weatherList){
         this.context=context;

@@ -33,9 +33,7 @@ public class HourWeatherListRequestTask extends AsyncTask<CoordBean,Void,Void> {
     private MutableLiveData<CurrentBean> mCurrentBean;
 
     public HourWeatherListRequestTask(
-            WeatherHourInfo hourWeatherData,
             MutableLiveData<Resource<WeatherHourInfo>> requestSchedule) {
-        this.hourWeatherData=hourWeatherData;
         this.mRequestSchedule=requestSchedule;
     }
 
@@ -137,6 +135,11 @@ public class HourWeatherListRequestTask extends AsyncTask<CoordBean,Void,Void> {
 
     public void setSchedule(MutableLiveData<Resource<WeatherHourInfo>> requestSchedule){
         this.mRequestSchedule=requestSchedule;
+    }
+
+    public HourWeatherListRequestTask setHourInfo(WeatherHourInfo weatherHourInfo){
+        this.hourWeatherData=weatherHourInfo;
+        return this;
     }
 
     public HourWeatherListRequestTask setHourlyBean(MutableLiveData<List<HourlyBean>> mHourlyBean){

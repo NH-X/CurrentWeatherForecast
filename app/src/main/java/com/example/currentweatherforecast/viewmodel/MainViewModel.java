@@ -7,12 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.currentweatherforecast.bean.citybean.CityInfo;
 import com.example.currentweatherforecast.bean.weatherbean.CoordBean;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo.DailyBean;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherHourInfo;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherHourInfo.CurrentBean;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherHourInfo.HourlyBean;
+import com.example.currentweatherforecast.repositories.CityRepository;
 import com.example.currentweatherforecast.repositories.DayWeatherListRepository;
 import com.example.currentweatherforecast.repositories.HourWeatherRepository;
 import com.example.currentweatherforecast.respost.RequestProcessType;
@@ -25,12 +27,16 @@ public class MainViewModel extends ViewModel {
 
     private DayWeatherListRepository dayWeatherRepo;
     private HourWeatherRepository hourWeatherRepo;
+    private CityRepository cityRepo;
+
     private CoordBean mCityCoord;
     private MutableLiveData<WeatherDayInfo> mWeatherDayInfo;
     private MutableLiveData<WeatherHourInfo> mWeatherHourInfo;
+    private MutableLiveData<List<CityInfo>> mCityInfo;
     private MutableLiveData<List<DailyBean>> mWeatherDailyBean;
     private MutableLiveData<List<HourlyBean>> mWeatherHourlyBean;
-    private MutableLiveData<CurrentBean> currentWeather;
+    private MutableLiveData<CurrentBean> mCurrentWeather;
+    private MutableLiveData<String> mCityName;
     private MutableLiveData<Resource<WeatherHourInfo>> hourWeatherResource=new MutableLiveData<>();
     private MutableLiveData<Resource<WeatherDayInfo>> dayWeatherRequest = new MutableLiveData<>(
             new Resource<>(
@@ -38,40 +44,53 @@ public class MainViewModel extends ViewModel {
                     RequestProcessType.request_executing,
                     "")
     );
+    private MutableLiveData<Resource<List<CityInfo>>> cityRequest=new MutableLiveData<>();
 
     public void init(CoordBean coord){
         mCityCoord=coord;
         dayWeatherRepo = DayWeatherListRepository.getInstance(mCityCoord,this);
         hourWeatherRepo= HourWeatherRepository.getInstance(mCityCoord,this);
+        cityRepo=CityRepository.getInstance(mCityCoord);
 
         mWeatherHourlyBean=hourWeatherRepo.getHourBean();
         mWeatherHourInfo=hourWeatherRepo.getHourWeather();
-        currentWeather=hourWeatherRepo.getCurrentWeather();
+        mCurrentWeather =hourWeatherRepo.getCurrentWeather();
+        mCityName=cityRepo.getCityName();
 
         mWeatherDayInfo = dayWeatherRepo.getDayWeatherList();
         mWeatherDailyBean= dayWeatherRepo.getDailyWeatherList();
 
-        Log.d(TAG, "init: currentBean is null ?"+(currentWeather.getValue()==null));
+        mCityInfo=cityRepo.getCityInfo();
+
+        Log.d(TAG, "init: currentBean is null ?"+(mCurrentWeather.getValue()==null));
     }
 
     public LiveData<List<HourlyBean>> getWeatherHourlyList(){
         return mWeatherHourlyBean;
     }
 
-    public LiveData<CurrentBean> getCurrentWeather(){
-        return currentWeather;
+    public LiveData<CurrentBean> getmCurrentWeather(){
+        return mCurrentWeather;
+    }
+
+    public LiveData<String> getCurrentCityName(){
+        return mCityName;
     }
 
     public LiveData<WeatherDayInfo> getWeatherDayList(){
         return mWeatherDayInfo;
     }
 
-    public LiveData<List<DailyBean>> getWeatherDailyList(){
-        return mWeatherDailyBean;
-    }
-
     public LiveData<WeatherHourInfo> getWeatherHour(){
         return mWeatherHourInfo;
+    }
+
+    public LiveData<List<CityInfo>> getCurrentCity(){
+        return mCityInfo;
+    }
+
+    public LiveData<List<DailyBean>> getWeatherDailyList(){
+        return mWeatherDailyBean;
     }
 
     public LiveData<Resource<WeatherDayInfo>> getDayResourceSchedule(){
@@ -82,10 +101,14 @@ public class MainViewModel extends ViewModel {
         return hourWeatherResource;
     }
 
+    public LiveData<Resource<List<CityInfo>>> getCityResourceSchedule(){
+        return cityRequest;
+    }
+
     public void setWeatherHour(WeatherHourInfo weatherHourInfo){
         mWeatherHourlyBean.postValue(weatherHourInfo.hourly);
         mWeatherHourInfo.postValue(weatherHourInfo);
-        currentWeather.postValue(weatherHourInfo.current);
+        mCurrentWeather.postValue(weatherHourInfo.current);
     }
 
     public void setWeatherDay(WeatherDayInfo weatherDayInfo){
@@ -108,11 +131,16 @@ public class MainViewModel extends ViewModel {
     private Runnable requestRunnable = new Runnable() {
         @Override
         public void run() {
+            //获取当前所在城市
+            cityRepo.startRequest(cityRequest);
+            mCityInfo.postValue(cityRepo.refreshCityInfo());
+            mCityName.postValue(cityRepo.refreshCityName());
+
             //获取当天当前天气和后48小时天气
             hourWeatherRepo.startRequest(hourWeatherResource);
             mWeatherHourlyBean.postValue(hourWeatherRepo.refreshHourlyWeather());
             mWeatherHourInfo.postValue(hourWeatherRepo.refreshHourInfoWeather());
-            currentWeather.postValue(hourWeatherRepo.refreshCurrentWeather());
+            mCurrentWeather.postValue(hourWeatherRepo.refreshCurrentWeather());
 
             //获取当天起到后8天天气
             dayWeatherRepo.startRequest(dayWeatherRequest);
