@@ -89,7 +89,7 @@ public class MainViewModel extends ViewModel {
         return mCityInfo;
     }
 
-    public LiveData<List<DailyBean>> getWeatherDailyList(){
+    public LiveData<List<DailyBean>>  getWeatherDailyList(){
         return mWeatherDailyBean;
     }
 

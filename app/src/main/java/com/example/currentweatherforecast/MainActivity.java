@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
     private AdView adView;
 
+    private LocationManager locationManager;
+
     private MainViewModel mMainViewModel;
     private MainApplication myApp;
     private WeatherDayListAdapter mWeatherDayListAdapter;
@@ -91,7 +93,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
         myApp=MainApplication.getInstance();
         coord=new CoordBean();
-        getLocation();
+        locationManager= (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //打开了gps定位服务
+            Log.d(TAG, "onCreate: GPS is open");
+            getLocation();
+        }
+        else{
+            //没有gps定位服务
+            Log.d(TAG, "onCreate: GPS is close");
+        }
         mMainViewModel= new ViewModelProvider(this).get(MainViewModel.class);
         mMainViewModel.init(coord);
 
@@ -213,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                         public void onChanged(List<DailyBean> weatherDailyBean) {
                             if(weatherDailyBean!=null) {
                                 Toast.makeText(MainActivity.this, weatherDailyBean.size() + "", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "onChanged: weatherDailyBean size is "+weatherDailyBean.size());
                                 mWeatherDayListAdapter.setDailyBeanList(weatherDailyBean);
                                 mWeatherDayListAdapter.notifyDataSetChanged();
                             }
@@ -284,9 +296,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     }
 
     private void getLocation(){
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if(PermissionUtil.checkPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION,0)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers=locationManager.getProviders(true);
+        for (String provider:providers){
+            Log.d(TAG, "getLocation: "+provider);
+        }
+        if(PermissionUtil.checkPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION,200)) {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    60*1000,
+                    0,
+                    this
+            );
         }
     }
 
@@ -301,7 +322,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.d(TAG, "onStatusChanged: provider = " + provider + ", status = " + status);
+    }
 
     @Override
     public void onProviderEnabled(String provider) {}
@@ -333,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         if (adView != null) {
             adView.destroy();
         }
+        locationManager.removeUpdates(this);
         mMainViewModel=null;
     }
 
