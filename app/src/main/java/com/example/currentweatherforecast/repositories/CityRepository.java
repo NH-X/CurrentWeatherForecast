@@ -58,12 +58,4 @@ public class CityRepository {
     public MutableLiveData<String> getCityName(){
         return cityName;
     }
-
-    public List<CityInfo> refreshCityInfo(){
-        return cityDataSet;
-    }
-
-    public String refreshCityName(){
-        return cityName.getValue();
-    }
 }

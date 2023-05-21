@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class DayWeatherListRequestTask extends AsyncTask<CoordBean,Void, Void> {
     private static final String TAG="DayWeatherListRequestTask";
@@ -73,7 +74,7 @@ public class DayWeatherListRequestTask extends AsyncTask<CoordBean,Void, Void> {
                     "成功"));
             dayWeatherData=weatherDayInfo;
             if(weatherDayInfo!=null) {
-                if (mDailyBean != null) {
+                if (mDailyBean != null && !Objects.equals(mDailyBean.getValue(), weatherDayInfo.daily)) {
                     mDailyBean.postValue( weatherDayInfo.daily);
                     Log.d(TAG, "doInBackground: mDailyBean is null? "+(mDailyBean==null));
                 }

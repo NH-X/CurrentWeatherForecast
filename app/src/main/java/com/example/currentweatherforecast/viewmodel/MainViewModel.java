@@ -131,8 +131,6 @@ public class MainViewModel extends ViewModel {
         public void run() {
             //获取当前所在城市
             cityRepo.startRequest(cityRequest);
-            mCityInfo.postValue(cityRepo.refreshCityInfo());
-            mCityName.postValue(cityRepo.refreshCityName());
 
             //获取当天当前天气和后48小时天气
             hourWeatherRepo.startRequest(hourWeatherResource);

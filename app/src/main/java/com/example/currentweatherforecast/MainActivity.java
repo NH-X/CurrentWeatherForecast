@@ -106,134 +106,137 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         mMainViewModel= new ViewModelProvider(this).get(MainViewModel.class);
         mMainViewModel.init(coord);
 
-        mMainViewModel.getCityResourceSchedule().observe(this, new Observer<Resource<List<CityInfo>>>() {
-            @Override
-            public void onChanged(Resource<List<CityInfo>> cityInfoResource) {
-                if(cityInfoResource.getType()== RequestProcessType.request_error){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
-                }
-                else if(cityInfoResource.getType()== RequestProcessType.request_error_data_processing_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(cityInfoResource.getType()== RequestProcessType.request_error_city_not_found){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
-                }
-                else if(cityInfoResource.getType()== RequestProcessType.request_error_network_connection_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(cityInfoResource.getType()==RequestProcessType.request_success){
-                    mMainViewModel.getCurrentCityName().observe(MainActivity.this, new Observer<String>() {
-                        @Override
-                        public void onChanged(String s) {
-                            tv_city.setText(s);
-                            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "onChanged: cityName is "+s);
+        if(!mMainViewModel.getCityResourceSchedule().hasObservers()) {
+            mMainViewModel.getCityResourceSchedule().observe(this, new Observer<Resource<List<CityInfo>>>() {
+                @Override
+                public void onChanged(Resource<List<CityInfo>> cityInfoResource) {
+                    if (cityInfoResource.getType() == RequestProcessType.request_error) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
+                    } else if (cityInfoResource.getType() == RequestProcessType.request_error_data_processing_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
+                    } else if (cityInfoResource.getType() == RequestProcessType.request_error_city_not_found) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
+                    } else if (cityInfoResource.getType() == RequestProcessType.request_error_network_connection_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
+                    } else if (cityInfoResource.getType() == RequestProcessType.request_success) {
+                        if(!mMainViewModel.getCurrentCityName().hasObservers()) {
+                            mMainViewModel.getCurrentCityName().observe(MainActivity.this, new Observer<String>() {
+                                @Override
+                                public void onChanged(String s) {
+                                    tv_city.setText(s);
+                                    Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, "onChanged: cityName is " + s);
 
-                            mWeatherDayListAdapter.setCity(s);
-                            mWeatherDayListAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            }
-        });
-        mMainViewModel.getHourResourceSchedule().observe(this, new Observer<Resource<WeatherHourInfo>>() {
-            @Override
-            public void onChanged(Resource<WeatherHourInfo> weatherHourInfoResource) {
-                if(weatherHourInfoResource.getType()== RequestProcessType.request_error){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherHourInfoResource.getType()== RequestProcessType.request_error_data_processing_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherHourInfoResource.getType()== RequestProcessType.request_error_city_not_found){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherHourInfoResource.getType()== RequestProcessType.request_error_network_connection_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherHourInfoResource.getType()==RequestProcessType.request_success){
-                    mMainViewModel.getWeatherHourlyList().observe(MainActivity.this, new Observer<List<HourlyBean>>() {
-                        @Override
-                        public void onChanged(List<HourlyBean> weatherHourInfo) {
-                            Log.d(TAG, "onChanged: getWeatherHourlyList is run "+(weatherHourInfo==null?0:weatherHourInfo.size()));
-                            mWeatherHourListAdapter.setHourlyBeanList(weatherHourInfo);
-                            mWeatherHourListAdapter.notifyDataSetChanged();
-                        }
-                    });
-                    mMainViewModel.getmCurrentWeather().observe(MainActivity.this, new Observer<CurrentBean>() {
-                        @Override
-                        public void onChanged(CurrentBean currentBean) {
-                            if (currentBean != null) {
-                                Log.d(TAG,"onChanged: currentBean=" + (currentBean == null));
-                                tv_date.setText(DateUtil.getNowDateTime());
-                                icon_weather.setImageResource(myApp.getWeatherIcon(currentBean.weather.get(0).icon));
-                                tv_temperature.setText(currentBean.temp + "℃");
-                                tv_description.setText(currentBean.weather.get(0).description);
-                                tv_visibility.setText(
-                                        String.format("%.3fkm", currentBean.visibility * 1.0 / 1000)
-                                );
-                                tv_atmospheric_pressure.setText(
-                                        String.format("%dp" , currentBean.pressure)
-                                );
-                                tv_wind_speed.setText(
-                                        String.format("%.1fm/s" , currentBean.windSpeed)
-                                );
-                                tv_humidity.setText(
-                                        String.format("%d%%", currentBean.humidity)
-                                );
-                                if (currentBean.weather.get(0).main.equals("Rain")) {
-                                    ll_snow.setVisibility(View.VISIBLE);
-                                    icon_snow.setImageResource(R.mipmap.rain);
-                                    tv_snowfall.setText(
-                                            String.format("%.2fmm/h", currentBean.rain._$1h)
-                                    );
-                                } else if (currentBean.weather.get(0).main.equals("Snow")) {
-                                    ll_snow.setVisibility(View.VISIBLE);
-                                    icon_snow.setImageResource(R.mipmap.snow);
-                                    tv_snowfall.setText(
-                                            String.format("%.2fmm/h", currentBean.snow._$1h)
-                                    );
-                                } else {
-                                    ll_snow.setVisibility(View.GONE);
+                                    mWeatherDayListAdapter.setCity(s);
+                                    mWeatherDayListAdapter.notifyDataSetChanged();
                                 }
-                            }
+                            });
                         }
-                    });
+                    }
                 }
-            }
-        });
-        mMainViewModel.getDayResourceSchedule().observe(this, new Observer<Resource<WeatherDayInfo>>() {
-            @Override
-            public void onChanged(Resource<WeatherDayInfo> weatherDayInfoResource) {
-                if(weatherDayInfoResource.getType()== RequestProcessType.request_error){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherDayInfoResource.getType()== RequestProcessType.request_error_data_processing_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherDayInfoResource.getType()== RequestProcessType.request_error_city_not_found){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherDayInfoResource.getType()== RequestProcessType.request_error_network_connection_failed){
-                    Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
-                }
-                else if(weatherDayInfoResource.getType()==RequestProcessType.request_success){
-                    //Toast.makeText(MainActivity.this, weatherDayInfoResource.getData().daily.size()+"", Toast.LENGTH_SHORT).show();
-                    mMainViewModel.getWeatherDailyList().observe(MainActivity.this, new Observer<List<DailyBean>>() {
-                        @Override
-                        public void onChanged(List<DailyBean> weatherDailyBean) {
-                            Log.d(TAG, "onChanged: getWeatherDailyList is run");
-                            if(weatherDailyBean!=null) {
-                                Toast.makeText(MainActivity.this, weatherDailyBean.size() + "", Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "onChanged: weatherDailyBean size is "+weatherDailyBean.size());
-                                mWeatherDayListAdapter.setDailyBeanList(weatherDailyBean);
-                                mWeatherDayListAdapter.notifyDataSetChanged();
-                            }
+            });
+        }
+        if(!mMainViewModel.getHourResourceSchedule().hasObservers()) {
+            mMainViewModel.getHourResourceSchedule().observe(this, new Observer<Resource<WeatherHourInfo>>() {
+                @Override
+                public void onChanged(Resource<WeatherHourInfo> weatherHourInfoResource) {
+                    if (weatherHourInfoResource.getType() == RequestProcessType.request_error) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
+                    } else if (weatherHourInfoResource.getType() == RequestProcessType.request_error_data_processing_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
+                    } else if (weatherHourInfoResource.getType() == RequestProcessType.request_error_city_not_found) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
+                    } else if (weatherHourInfoResource.getType() == RequestProcessType.request_error_network_connection_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
+                    } else if (weatherHourInfoResource.getType() == RequestProcessType.request_success) {
+                        if(!mMainViewModel.getWeatherHourlyList().hasObservers()) {
+                            mMainViewModel.getWeatherHourlyList().observe(MainActivity.this, new Observer<List<HourlyBean>>() {
+                                @Override
+                                public void onChanged(List<HourlyBean> weatherHourInfo) {
+                                    Log.d(TAG, "onChanged: getWeatherHourlyList is run " + (weatherHourInfo == null ? 0 : weatherHourInfo.size()));
+                                    mWeatherHourListAdapter.setHourlyBeanList(weatherHourInfo);
+                                    mWeatherHourListAdapter.notifyDataSetChanged();
+                                }
+                            });
                         }
-                    });
+                        if(!mMainViewModel.getmCurrentWeather().hasObservers()) {
+                            mMainViewModel.getmCurrentWeather().observe(MainActivity.this, new Observer<CurrentBean>() {
+                                @Override
+                                public void onChanged(CurrentBean currentBean) {
+                                    if (currentBean != null) {
+                                        Log.d(TAG, "onChanged: currentBean=" + (currentBean == null));
+                                        tv_date.setText(DateUtil.getNowDateTime());
+                                        icon_weather.setImageResource(myApp.getWeatherIcon(currentBean.weather.get(0).icon));
+                                        tv_temperature.setText(currentBean.temp + "℃");
+                                        tv_description.setText(currentBean.weather.get(0).description);
+                                        tv_visibility.setText(
+                                                String.format("%.3fkm", currentBean.visibility * 1.0 / 1000)
+                                        );
+                                        tv_atmospheric_pressure.setText(
+                                                String.format("%dp", currentBean.pressure)
+                                        );
+                                        tv_wind_speed.setText(
+                                                String.format("%.1fm/s", currentBean.windSpeed)
+                                        );
+                                        tv_humidity.setText(
+                                                String.format("%d%%", currentBean.humidity)
+                                        );
+                                        if (currentBean.weather.get(0).main.equals("Rain")) {
+                                            ll_snow.setVisibility(View.VISIBLE);
+                                            icon_snow.setImageResource(R.mipmap.rain);
+                                            tv_snowfall.setText(
+                                                    String.format("%.2fmm/h", currentBean.rain._$1h)
+                                            );
+                                        } else if (currentBean.weather.get(0).main.equals("Snow")) {
+                                            ll_snow.setVisibility(View.VISIBLE);
+                                            icon_snow.setImageResource(R.mipmap.snow);
+                                            tv_snowfall.setText(
+                                                    String.format("%.2fmm/h", currentBean.snow._$1h)
+                                            );
+                                        } else {
+                                            ll_snow.setVisibility(View.GONE);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
+        if(!mMainViewModel.getDayResourceSchedule().hasObservers()) {
+            mMainViewModel.getDayResourceSchedule().observe(this, new Observer<Resource<WeatherDayInfo>>() {
+                @Override
+                public void onChanged(Resource<WeatherDayInfo> weatherDayInfoResource) {
+                    Log.d(TAG, "onChanged: getDayResourceSchedule is run");
+                    if (weatherDayInfoResource.getType() == RequestProcessType.request_error) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error), Toast.LENGTH_SHORT).show();
+                    } else if (weatherDayInfoResource.getType() == RequestProcessType.request_error_data_processing_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_data_processing_failed), Toast.LENGTH_SHORT).show();
+                    } else if (weatherDayInfoResource.getType() == RequestProcessType.request_error_city_not_found) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_city_not_found), Toast.LENGTH_SHORT).show();
+                    } else if (weatherDayInfoResource.getType() == RequestProcessType.request_error_network_connection_failed) {
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.request_error_network_connection_failed), Toast.LENGTH_SHORT).show();
+                    } else if (weatherDayInfoResource.getType() == RequestProcessType.request_success) {
+                        //Toast.makeText(MainActivity.this, weatherDayInfoResource.getData().daily.size()+"", Toast.LENGTH_SHORT).show();
+                        if (!mMainViewModel.getWeatherDailyList().hasObservers()) {
+                            mMainViewModel.getWeatherDailyList().observe(MainActivity.this, new Observer<List<DailyBean>>() {
+                                @Override
+                                public void onChanged(List<DailyBean> weatherDailyBean) {
+                                    Log.d(TAG, "onChanged: getWeatherDailyList is run");
+                                    if (weatherDailyBean != null) {
+                                        Toast.makeText(MainActivity.this, weatherDailyBean.size() + "", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "onChanged: weatherDailyBean size is " + weatherDailyBean.size());
+                                        mWeatherDayListAdapter.setDailyBeanList(weatherDailyBean);
+                                        mWeatherDayListAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
 
         initFindView();
         initHourRecycleView();
