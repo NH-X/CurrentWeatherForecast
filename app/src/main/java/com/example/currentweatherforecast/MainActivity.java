@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                     mMainViewModel.getWeatherDailyList().observe(MainActivity.this, new Observer<List<DailyBean>>() {
                         @Override
                         public void onChanged(List<DailyBean> weatherDailyBean) {
+                            Log.d(TAG, "onChanged: getWeatherDailyList is run");
                             if(weatherDailyBean!=null) {
                                 Toast.makeText(MainActivity.this, weatherDailyBean.size() + "", Toast.LENGTH_SHORT).show();
                                 Log.d(TAG, "onChanged: weatherDailyBean size is "+weatherDailyBean.size());

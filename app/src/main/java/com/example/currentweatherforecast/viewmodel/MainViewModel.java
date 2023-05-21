@@ -48,19 +48,19 @@ public class MainViewModel extends ViewModel {
 
     public void init(CoordBean coord){
         mCityCoord=coord;
-        dayWeatherRepo = DayWeatherListRepository.getInstance(mCityCoord,this);
-        hourWeatherRepo= HourWeatherRepository.getInstance(mCityCoord,this);
+        dayWeatherRepo = DayWeatherListRepository.getInstance(mCityCoord);
+        hourWeatherRepo= HourWeatherRepository.getInstance(mCityCoord);
         cityRepo=CityRepository.getInstance(mCityCoord);
 
         mWeatherHourlyBean=hourWeatherRepo.getHourBean();
         mWeatherHourInfo=hourWeatherRepo.getHourWeather();
         mCurrentWeather =hourWeatherRepo.getCurrentWeather();
-        mCityName=cityRepo.getCityName();
 
         mWeatherDayInfo = dayWeatherRepo.getDayWeatherList();
         mWeatherDailyBean= dayWeatherRepo.getDailyWeatherList();
 
         mCityInfo=cityRepo.getCityInfo();
+        mCityName=cityRepo.getCityName();
 
         Log.d(TAG, "init: currentBean is null ?"+(mCurrentWeather.getValue()==null));
     }
@@ -77,6 +77,10 @@ public class MainViewModel extends ViewModel {
         return mCityName;
     }
 
+    /**
+     * 这三个方法预留，当前用不到，但是后期扩展业务可能会用到
+     */
+    /*
     public LiveData<WeatherDayInfo> getWeatherDayList(){
         return mWeatherDayInfo;
     }
@@ -88,8 +92,13 @@ public class MainViewModel extends ViewModel {
     public LiveData<List<CityInfo>> getCurrentCity(){
         return mCityInfo;
     }
+    */
 
     public LiveData<List<DailyBean>>  getWeatherDailyList(){
+        Log.d(TAG, "getWeatherDailyList: run "+(
+                mWeatherDailyBean == null?"mWeatherDailyBean is null" :
+                        mWeatherDailyBean.getValue() == null ? "mWeatherDailyBean value is null" :
+                                mWeatherDailyBean.getValue().size()));
         return mWeatherDailyBean;
     }
 
@@ -103,17 +112,6 @@ public class MainViewModel extends ViewModel {
 
     public LiveData<Resource<List<CityInfo>>> getCityResourceSchedule(){
         return cityRequest;
-    }
-
-    public void setWeatherHour(WeatherHourInfo weatherHourInfo){
-        mWeatherHourlyBean.postValue(weatherHourInfo.hourly);
-        mWeatherHourInfo.postValue(weatherHourInfo);
-        mCurrentWeather.postValue(weatherHourInfo.current);
-    }
-
-    public void setWeatherDay(WeatherDayInfo weatherDayInfo){
-        mWeatherDayInfo.postValue(weatherDayInfo);
-        mWeatherDailyBean.postValue(weatherDayInfo.daily);
     }
 
     public void onResume(){
@@ -138,13 +136,9 @@ public class MainViewModel extends ViewModel {
 
             //获取当天当前天气和后48小时天气
             hourWeatherRepo.startRequest(hourWeatherResource);
-            mWeatherHourlyBean.postValue(hourWeatherRepo.refreshHourlyWeather());
-            mWeatherHourInfo.postValue(hourWeatherRepo.refreshHourInfoWeather());
-            mCurrentWeather.postValue(hourWeatherRepo.refreshCurrentWeather());
 
             //获取当天起到后8天天气
             dayWeatherRepo.startRequest(dayWeatherRequest);
-            mWeatherDailyBean.postValue(dayWeatherRepo.refreshDailyWeather());
 
             // 延迟5分钟后再次执行请求
             requestHandler.postDelayed(requestRunnable, delayTime);

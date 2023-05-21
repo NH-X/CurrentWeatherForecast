@@ -24,9 +24,7 @@ public class CityRepository {
 
     private static CurrentCityRequestTask cityRequestTask;
 
-    public static CityRepository getInstance(
-            CoordBean coord
-    ){
+    public static CityRepository getInstance(CoordBean coord){
         if(instance==null){
             instance=new CityRepository();
         }

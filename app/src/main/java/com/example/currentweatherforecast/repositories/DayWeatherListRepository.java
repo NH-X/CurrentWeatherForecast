@@ -19,20 +19,16 @@ public class DayWeatherListRepository {
 
     private static DayWeatherListRepository instance;
     private CoordBean coord;
-    private MainViewModel viewModel;
     private WeatherDayInfo dayWeatherDataSet =new WeatherDayInfo();
     private MutableLiveData<List<DailyBean>> dailyWeatherDataSet=new MutableLiveData<>();
 
     private static DayWeatherListRequestTask dayWLRequestTask;
 
-    public static DayWeatherListRepository getInstance(
-            CoordBean coord,
-            MainViewModel viewModel) {
+    public static DayWeatherListRepository getInstance(CoordBean coord) {
         if (null == instance) {
             instance = new DayWeatherListRepository();
         }
         instance.coord=coord;
-        instance.viewModel=viewModel;
 
         return instance;
     }
@@ -56,13 +52,6 @@ public class DayWeatherListRepository {
         dayWLRequestTask.execute(coord);
     }
 
-//    public void setWeatherDayInfo(WeatherDayInfo weatherDayInfo){
-//        this.dayWeatherDataSet =weatherDayInfo;
-//        this.viewModel.setWeatherDay(weatherDayInfo);
-//        Log.d(TAG, "setWeatherDayInfo: dayWeatherDataSet is null?"+(dayWeatherDataSet ==null));
-//        Log.d(TAG, "setWeatherDayInfo: dailyBean is null?"+(dayWeatherDataSet.daily==null));
-//    }
-
     public MutableLiveData<WeatherDayInfo> getDayWeatherList(){
         MutableLiveData<WeatherDayInfo> dataList=new MutableLiveData<>();
         dataList.setValue(dayWeatherDataSet);
@@ -71,10 +60,10 @@ public class DayWeatherListRepository {
     }
 
     public MutableLiveData<List<DailyBean>> getDailyWeatherList() {
+        Log.d(TAG, "getDailyWeatherList: run "+(
+                dailyWeatherDataSet == null?"mWeatherDailyBean is null" :
+                        dailyWeatherDataSet.getValue() == null ? "mWeatherDailyBean value is null" :
+                                dailyWeatherDataSet.getValue().size()));
         return dailyWeatherDataSet;
-    }
-
-    public List<DailyBean> refreshDailyWeather(){
-        return dayWeatherDataSet.daily;
     }
 }

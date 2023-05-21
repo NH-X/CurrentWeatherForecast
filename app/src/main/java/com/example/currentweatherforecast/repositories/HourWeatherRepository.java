@@ -20,21 +20,17 @@ public class HourWeatherRepository {
 
     private static HourWeatherRepository instance;
     private CoordBean coord;
-    private MainViewModel viewModel;
     private WeatherHourInfo hourWeatherDataSet =new WeatherHourInfo();
     private MutableLiveData<List<HourlyBean>> hourlyWeatherDataSet=new MutableLiveData<>();
     private MutableLiveData<CurrentBean> currentWeatherDataSet=new MutableLiveData<>();
 
     private static HourWeatherListRequestTask hourWLRequestTask;
 
-    public static HourWeatherRepository getInstance(
-            CoordBean coord,
-            MainViewModel viewModel) {
+    public static HourWeatherRepository getInstance(CoordBean coord) {
         if (null == instance) {
             instance = new HourWeatherRepository();
         }
         instance.coord=coord;
-        instance.viewModel=viewModel;
 
         return instance;
     }
@@ -81,17 +77,5 @@ public class HourWeatherRepository {
 
     public MutableLiveData<List<HourlyBean>> getHourBean(){
         return hourlyWeatherDataSet;
-    }
-
-    public WeatherHourInfo refreshHourInfoWeather(){
-        return hourWeatherDataSet;
-    }
-
-    public CurrentBean refreshCurrentWeather(){
-        return hourWeatherDataSet.current;
-    }
-
-    public List<HourlyBean> refreshHourlyWeather(){
-        return hourWeatherDataSet.hourly;
     }
 }
