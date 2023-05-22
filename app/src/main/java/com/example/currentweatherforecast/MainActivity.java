@@ -2,8 +2,11 @@ package com.example.currentweatherforecast;
 
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -75,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     private TextView tv_humidity;
     private ImageView icon_snow;
     private TextView tv_snowfall;
+
+    SharedPreferences shared;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -332,9 +337,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         decorationDayList = new SpacesItemDecoration(25);
         rv_weather_list.addItemDecoration(decorationDayList);
     }
-
-
-    SharedPreferences shared;
 
     //从共享数据中获取上次的经纬度
     private void getCoordinates(){

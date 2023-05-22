@@ -13,7 +13,7 @@
         android:layout_height="100dp"
         android:layout_marginTop="200dp"
         android:contentDescription="@string/splash_activity_image_text"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        app:srcCompat="@mipmap/ic_launcher" />
     <TextView
         android:id="@+id/splash_activity_title"
         android:layout_width="wrap_content"

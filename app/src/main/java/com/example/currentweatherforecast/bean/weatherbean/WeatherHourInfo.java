@@ -76,7 +76,7 @@ public class WeatherHourInfo implements Serializable {
         @SerializedName("dt")
         public Integer dt;
         @SerializedName("precipitation")
-        public Integer precipitation;
+        public Double precipitation;
     }
 
     @NoArgsConstructor
