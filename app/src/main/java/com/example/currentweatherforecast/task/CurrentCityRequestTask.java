@@ -54,7 +54,7 @@ public class CurrentCityRequestTask extends AsyncTask<CoordBean,Void,Void> {
                     .replace("{lon}",String.valueOf(coordinate.lon))
                     .replace("{limit}",String.valueOf(1))
                     .replace("{apiKey}", BuildConfig.MY_WEATHER_API_KEY)
-                    .replace("{lang}","zh_cn");
+                    .replace("{lang}","en");
             Log.d(TAG, "doInBackground: requestUrl="+requestUrl);
             URL url=new URL(requestUrl);
             connection= (HttpURLConnection) url.openConnection();

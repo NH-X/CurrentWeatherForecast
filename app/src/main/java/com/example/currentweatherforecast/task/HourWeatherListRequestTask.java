@@ -50,7 +50,7 @@ public class HourWeatherListRequestTask extends AsyncTask<CoordBean,Void,Void> {
                     .replace("{lat}", String.valueOf(coordinate.lat))
                     .replace("{lon}", String.valueOf(coordinate.lon))
                     .replace("{apiKey}", BuildConfig.MY_WEATHER_API_KEY)
-                    .replace("{lang}", "zh_cn");
+                    .replace("{lang}", "en");
             Log.d(TAG, "doInBackground: requestUrl="+requestUrl);
             URL url=new URL(requestUrl);
             connection = (HttpURLConnection) url.openConnection();

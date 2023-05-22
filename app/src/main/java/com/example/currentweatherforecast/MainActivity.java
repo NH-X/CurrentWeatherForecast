@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         editor.putFloat("lon", (float) coord.lon);
         editor.putFloat("lat",(float) coord.lat);
         editor.commit();
-        Log.d(TAG, String.format("setCoordinates: lon is %f lat is %f",coord.lon,coord.lat));
+        Log.d(TAG, String.format("onDestroy: setCoordinates: lon is %f lat is %f",coord.lon,coord.lat));
     }
 
     private void getLocation(){
