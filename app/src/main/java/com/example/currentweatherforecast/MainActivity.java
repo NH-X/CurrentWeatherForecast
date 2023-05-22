@@ -1,7 +1,9 @@
 package com.example.currentweatherforecast;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     private TextView tv_date;
     private ImageView icon_weather;
     private LinearLayout ll_snow;
+    private LinearLayout ll_current_weather;
     private TextView tv_temperature;
     private TextView tv_description;
     private TextView tv_visibility;
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         MobileAds.setRequestConfiguration(
                 new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("E800B0825E3D8B69F8A3E7154C2F4945"))
                         .build());
+        //ADF79BFD97AFC7E720A536FDCF9C9B73
+        //This is my deviceIds: E800B0825E3D8B69F8A3E7154C2F4945
         // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
         // values/strings.xml.
         adView = findViewById(R.id.adView);
@@ -92,11 +97,37 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         adView.loadAd(adRequest);
 
         myApp=MainApplication.getInstance();
+        shared=getSharedPreferences("coordinates",MODE_PRIVATE);
         coord=new CoordBean();
+        getCoordinates();                       //获取上次保存的经纬度信息
         locationManager= (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // 检查网络定位是否可用
+        boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (isNetworkEnabled) {
+            // 请求网络定位
+            if (PermissionUtil.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, 200)) {
+                Log.d(TAG, "onCreate: Network is close");
+                locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER,
+                        60*1000,
+                        0,
+                        this);
+            }
+        } else {
+            // 网络定位不可用，您可以在这里处理相应逻辑
+            Log.d(TAG, "onCreate: Network is close");
+        }
         if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //打开了gps定位服务
             Log.d(TAG, "onCreate: GPS is open");
+            if(PermissionUtil.checkPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION,200)) {
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        60*1000,
+                        0,
+                        this
+                );
+            }
             getLocation();
         }
         else{
@@ -163,7 +194,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                             mMainViewModel.getmCurrentWeather().observe(MainActivity.this, new Observer<CurrentBean>() {
                                 @Override
                                 public void onChanged(CurrentBean currentBean) {
+                                    ll_current_weather.setVisibility(View.GONE);
                                     if (currentBean != null) {
+                                        ll_current_weather.setVisibility(View.VISIBLE);
                                         Log.d(TAG, "onChanged: currentBean=" + (currentBean == null));
                                         tv_date.setText(DateUtil.getNowDateTime());
                                         icon_weather.setImageResource(myApp.getWeatherIcon(currentBean.weather.get(0).icon));
@@ -248,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         setSupportActionBar(tl_head);
         tv_city=findViewById(R.id.tv_city);
         tv_date=findViewById(R.id.tv_date);
+        ll_current_weather=findViewById(R.id.ll_current_weather);
         icon_weather=findViewById(R.id.icon_weather);
         ll_snow=findViewById(R.id.ll_snow);
         tv_temperature=findViewById(R.id.tv_temperature);
@@ -295,8 +329,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         if (decorationDayList != null) {
             rv_weather_list.removeItemDecoration(decorationDayList);
         }
-        decorationDayList = new SpacesItemDecoration(50);
+        decorationDayList = new SpacesItemDecoration(25);
         rv_weather_list.addItemDecoration(decorationDayList);
+    }
+
+
+    SharedPreferences shared;
+
+    //从共享数据中获取上次的经纬度
+    private void getCoordinates(){
+        coord.lon=shared.getFloat("lon",0.0f);
+        coord.lat=shared.getFloat("lat",0.0f);
+        Log.d(TAG, String.format("getCoordinates: lon is %f lat is %f",coord.lon,coord.lat));
+    }
+
+    //往共享数据存储当前的经纬度
+    private void setCoordinates(){
+        SharedPreferences.Editor editor=shared.edit();
+        editor.putFloat("lon", (float) coord.lon);
+        editor.putFloat("lat",(float) coord.lat);
+        editor.commit();
+        Log.d(TAG, String.format("setCoordinates: lon is %f lat is %f",coord.lon,coord.lat));
     }
 
     private void getLocation(){
@@ -304,14 +357,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         List<String> providers=locationManager.getProviders(true);
         for (String provider:providers){
             Log.d(TAG, "getLocation: "+provider);
-        }
-        if(PermissionUtil.checkPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION,200)) {
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    60*1000,
-                    0,
-                    this
-            );
         }
     }
 
@@ -356,12 +401,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "Before calling onDestroy()");
         super.onDestroy();
         if (adView != null) {
             adView.destroy();
         }
+        Log.d(TAG, "onDestroy: being");
+        setCoordinates();           //保存当前的经纬度
         locationManager.removeUpdates(this);
         mMainViewModel=null;
+        Log.d(TAG, "onDestroy: end");
     }
 
     /** Override the default implementation when the user presses the back key. */
