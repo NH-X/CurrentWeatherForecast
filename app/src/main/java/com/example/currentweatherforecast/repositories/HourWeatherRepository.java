@@ -10,8 +10,7 @@ import com.example.currentweatherforecast.bean.weatherbean.WeatherHourInfo.Curre
 import com.example.currentweatherforecast.bean.weatherbean.WeatherHourInfo.HourlyBean;
 import com.example.currentweatherforecast.respost.RequestProcessType;
 import com.example.currentweatherforecast.respost.Resource;
-import com.example.currentweatherforecast.task.HourWeatherListRequestTask;
-import com.example.currentweatherforecast.viewmodel.MainViewModel;
+import com.example.currentweatherforecast.task.HourWeatherListRequest;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class HourWeatherRepository {
     private MutableLiveData<List<HourlyBean>> hourlyWeatherDataSet=new MutableLiveData<>();
     private MutableLiveData<CurrentBean> currentWeatherDataSet=new MutableLiveData<>();
 
-    private static HourWeatherListRequestTask hourWLRequestTask;
+    private static HourWeatherListRequest hourWeatherListRequest;
 
     public static HourWeatherRepository getInstance(CoordBean coord) {
         if (null == instance) {
@@ -48,21 +47,12 @@ public class HourWeatherRepository {
                 RequestProcessType.request_executing,
                 "等待中"
         ));
-        hourWLRequestTask=new HourWeatherListRequestTask(mRequestSchedule);
-        hourWLRequestTask
-                .setHourInfo(hourWeatherDataSet)
-                .setHourlyBean(hourlyWeatherDataSet)
-                .setCurrentBean(currentWeatherDataSet);
+        hourWeatherListRequest=new HourWeatherListRequest(mRequestSchedule);
+        hourWeatherListRequest.setHourlyBean(hourlyWeatherDataSet)
+                        .setCurrentBean(currentWeatherDataSet);
+        hourWeatherListRequest.run(coord);
         Log.d(TAG, "startRequest: run");
-        hourWLRequestTask.execute(coord);
     }
-
-//    public void setWeatherHourInfo(WeatherHourInfo weatherHourInfo){
-//        this.hourWeatherDataSet =weatherHourInfo;
-//        this.viewModel.setWeatherHour(weatherHourInfo);
-//        Log.d(TAG, "setWeatherHourInfo: weatherHourInfo is null? "+(weatherHourInfo==null));
-//        Log.d(TAG, "setWeatherHourInfo: currentBean is null? "+(weatherHourInfo==null?true:(weatherHourInfo.current==null)));
-//    }
 
     public MutableLiveData<WeatherHourInfo> getHourWeather() {
         MutableLiveData<WeatherHourInfo> dataList=new MutableLiveData<>();

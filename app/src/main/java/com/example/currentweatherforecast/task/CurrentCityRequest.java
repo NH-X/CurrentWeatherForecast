@@ -70,7 +70,7 @@ public class CurrentCityRequest {
                         cityResponse = response.body().string();
                     } catch (IOException e) {
                         mRequestSchedule.postValue(new Resource<>(
-                                null,
+                                mCityInfo[0],
                                 RequestProcessType.request_error_network_connection_failed,
                                 "网络异常"
                         ));
