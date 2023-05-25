@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.example.currentweatherforecast'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.example.currentweatherforecast"
+        minSdk 28
+        targetSdk 33
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        /**
+         * In the gradle.properties file replace your MyWeatherApiKey with your OpenWeatherMap API Key
+         * */
+        buildConfigField "String", "MY_WEATHER_API_KEY", MyWeatherApiKey
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    def lifecycle_version = "2.5.1"
+
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"  // ViewModel
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"   // LiveData
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
+
+    // Ads
+    def google_adMob_version="22.0.0"
+    implementation "com.google.android.gms:play-services-ads:$google_adMob_version"
+
+    //gson
+    def gson_version="2.10.1"
+    implementation "com.google.code.gson:gson:$gson_version"
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    //okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+}

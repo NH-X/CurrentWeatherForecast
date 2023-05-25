@@ -8,7 +8,7 @@ import com.example.currentweatherforecast.bean.citybean.CityInfo;
 import com.example.currentweatherforecast.bean.weatherbean.CoordBean;
 import com.example.currentweatherforecast.respost.RequestProcessType;
 import com.example.currentweatherforecast.respost.Resource;
-import com.example.currentweatherforecast.task.CurrentCityRequestTask;
+import com.example.currentweatherforecast.task.CurrentCityRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,7 @@ public class CityRepository {
     private List<CityInfo> cityDataSet=new ArrayList<>();
     private MutableLiveData<List<CityInfo>> mCity=new MutableLiveData<>();
     private MutableLiveData<String> cityName=new MutableLiveData<>("Earth");
-
-    private static CurrentCityRequestTask cityRequestTask;
+    private static CurrentCityRequest cityRequest;
 
     public static CityRepository getInstance(CoordBean coord){
         if(instance==null){
@@ -41,10 +40,9 @@ public class CityRepository {
                 RequestProcessType.request_executing,
                 "等待中"
         ));
-        cityRequestTask=new CurrentCityRequestTask(mRequestSchedule,cityName);
-        cityRequestTask
-                .setCityInfo(mCity)
-                        .execute(coord);
+        cityRequest=new CurrentCityRequest(mRequestSchedule,cityName);
+        cityRequest.setCityInfo(mCity).run(coord);
+
         Log.d(TAG, "startRequest: run");
     }
 

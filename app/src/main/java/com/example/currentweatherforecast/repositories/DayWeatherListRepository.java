@@ -9,8 +9,7 @@ import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo;
 import com.example.currentweatherforecast.bean.weatherbean.WeatherDayInfo.DailyBean;
 import com.example.currentweatherforecast.respost.RequestProcessType;
 import com.example.currentweatherforecast.respost.Resource;
-import com.example.currentweatherforecast.task.DayWeatherListRequestTask;
-import com.example.currentweatherforecast.viewmodel.MainViewModel;
+import com.example.currentweatherforecast.task.DayWeatherListRequest;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class DayWeatherListRepository {
     private WeatherDayInfo dayWeatherDataSet =new WeatherDayInfo();
     private MutableLiveData<List<DailyBean>> dailyWeatherDataSet=new MutableLiveData<>();
 
-    private static DayWeatherListRequestTask dayWLRequestTask;
+    private static DayWeatherListRequest dayWeatherListRequest;
 
     public static DayWeatherListRepository getInstance(CoordBean coord) {
         if (null == instance) {
@@ -46,10 +45,9 @@ public class DayWeatherListRepository {
                 RequestProcessType.request_executing,
                 "等待中"
         ));
-        dayWLRequestTask =new DayWeatherListRequestTask(dayWeatherDataSet,mRequestSchedule);
-        dayWLRequestTask.setWeatherDailyBean(dailyWeatherDataSet);
+        dayWeatherListRequest=new DayWeatherListRequest(mRequestSchedule);
+        dayWeatherListRequest.setWeatherDailyBean(dailyWeatherDataSet).run(coord);
         Log.d(TAG, "startRequest: run");
-        dayWLRequestTask.execute(coord);
     }
 
     public MutableLiveData<WeatherDayInfo> getDayWeatherList(){

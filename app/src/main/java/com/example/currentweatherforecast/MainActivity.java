@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         setContentView(R.layout.activity_main);
 
         MobileAds.setRequestConfiguration(
-                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("E800B0825E3D8B69F8A3E7154C2F4945"))
+                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ADF79BFD97AFC7E720A536FDCF9C9B73"))
                         .build());
         //ADF79BFD97AFC7E720A536FDCF9C9B73
         //This is my deviceIds: E800B0825E3D8B69F8A3E7154C2F4945
